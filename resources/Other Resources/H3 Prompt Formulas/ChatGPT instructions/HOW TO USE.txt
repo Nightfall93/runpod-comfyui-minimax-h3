@@ -1,0 +1,47 @@
+CHATGPT SETUP
+=============
+
+You need BOTH files for your model. They do different jobs.
+
+FL2VA   minimax_h3_fl2va_*.safetensors
+        Text to video, first frame, first and last frame, last frame.
+
+REF2VA  minimax_h3_ref2va_*.safetensors
+        Reference mode: images, video or audio that define a character, place, style,
+        camera move, voice or soundtrack.
+
+Pick the pair matching the model you loaded in ComfyUI.
+
+
+STEPS
+
+1. Create a new custom GPT.
+
+2. Under "Knowledge", click Upload files and add the KNOWLEDGE (upload) file.
+
+3. Open the INSTRUCTIONS (paste) file, select all of it, and paste it into the
+   "Instructions" box, replacing whatever is there.
+
+
+WHY BOTH
+
+The Instructions box only holds 8000 characters and the full rule file is far bigger,
+so it has to be uploaded. But an uploaded file is only SEARCHED, not read in full every
+time, so a rule reaches the model only when your request happens to match it. The small
+file carries the rules that must never be missed, and it tells the GPT to search the big
+file for the rest.
+
+The INSTRUCTIONS files are sized to just under 8000 characters. If you edit one, check
+it still fits before saving.
+
+
+CONVERSATION STARTERS
+
+FL2VA                                    REF2VA
+Write a video prompt from text only.     Use this image as the character.
+Animate this image.                      Use this audio as the voice.
+Go from this first frame to this last.   Reuse this song as the soundtrack.
+Use this image as the last frame.        Copy the camera moves from this video.
+
+
+See "README - start here.txt" in the folder above for what these formulas fix.

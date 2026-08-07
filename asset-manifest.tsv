@@ -1,0 +1,24 @@
+# kind<TAB>repository path<TAB>ComfyUI-relative install path<TAB>sha256
+workflow	workflows/01-fl2va-image-to-video-first-frame.json	user/default/workflows/MiniMax H3/1. Generate Video H3 (fl2va)/Minimax H3 - Image to video FF (First Frame).json	58e083f7f384de7ea6335e9b49be09d600b50df0e5f02d1ecc4fb0611ed95b30
+workflow	workflows/02-fl2va-image-to-video-first-last-frame.json	user/default/workflows/MiniMax H3/1. Generate Video H3 (fl2va)/Minimax H3 - Image to video FFLF.json	09d58261fe4565915c8f406814b69191521d485cf2aafaa3a84159e7b3d4e8d0
+workflow	workflows/03-fl2va-image-to-video-last-frame.json	user/default/workflows/MiniMax H3/1. Generate Video H3 (fl2va)/Minimax H3 - Image to video LF (Last Frame).json	08e6ec0a99b15a117a5039f0673b6f389ed5019c0354ffd7b5d7afe46764a0d5
+workflow	workflows/04-fl2va-text-to-video.json	user/default/workflows/MiniMax H3/1. Generate Video H3 (fl2va)/Minimax H3 - Text to video.json	e6937fd81694eaa5d7fcfea4ab09f59cf0ba6dabb5e10fbd144b2586a1266650
+workflow	workflows/05-ref2va-reference-three-images.json	user/default/workflows/MiniMax H3/2. Generate Video H3 (ref2va)/Minimax H3 - Reference Three Images.json	20f310c29c4ccc04358cf3c93aac16dd823d9edb0230dbefc9c244e8db9566fb
+workflow	workflows/06-ref2va-reference-two-images.json	user/default/workflows/MiniMax H3/2. Generate Video H3 (ref2va)/Minimax H3 - Reference Two Images.json	0e27bd5e411b58f0ffb93f44d565667a13e10979771fdde2ada2d54a1d33034f
+workflow	workflows/07-ref2va-audio-sync-sing.json	user/default/workflows/MiniMax H3/3. Generate Video H3 Audio Sync (ref2va)/Minimax H3 - Reference Image + Audio Sync - SING.json	c960b1c0e5a31bb3149c26f331858e13ee6f218665dc6817d51d382237d303bb
+workflow	workflows/08-ref2va-audio-sync-speak.json	user/default/workflows/MiniMax H3/3. Generate Video H3 Audio Sync (ref2va)/Minimax H3 - Reference Image + Audio Sync - SPEAK.json	25a9cfad72a93fe89ec393c4a4d692c74c82a1e2014b2e566282fbcaa9192340
+workflow	workflows/09-fl2va-image-edit.json	user/default/workflows/MiniMax H3/4. Generate Image H3 (fl2va)/Minimax H3 - Image Edit.json	bb81f65af0338f1d3caff295db781ca80a921de93247ac41a50ba61ff50f7fa6
+workflow	workflows/10-fl2va-text-to-image.json	user/default/workflows/MiniMax H3/4. Generate Image H3 (fl2va)/Minimax H3 - Text to image.json	56a137658aa5e0390a0aa6494dbab1788b578a2bea806f2b0e3c56caca5b809e
+input	media/ballerina-bunny.png	input/BallerinaBunny.png	1e93dab4a34ef30371c50fdd51d3431206e7d4c430bb0deb9243eaa9f5e50ef5
+input	media/bunny-black-suit.jpeg	input/bunny_black_suit.jpeg	9cd4b7bd0f9f83307098adc24942b5cdf0404c8f70a3a75b54295954c11b2da4
+input	media/bunny-sitting.jpg	input/BunnySitting.jpg	cf0576cb3ce0eed09985daa2add36933e143535007842f0f5be8d9c9d8611371
+input	media/exotic-background.jpeg	input/exotic_background.jpeg	c54b3801eedcd238bbcbd1b6bb0c2559b8bc5844836d763d2eb542db9b904853
+input	media/exotic-world.jpeg	input/exotic_world.jpeg	7bb9a236ab15b7b5114ce3e0743ab8b130c148be26f4435b0480c5e9674987a1
+input	media/h1-collage.png	input/.h1 Collage.png	5d1753d079a317e6afdb368131e2a4642b12eeff4930255caf9c7308d2d46551
+input	media/i-am-pixa-bunny.mp3	input/I am pixa bunny.mp3	3032d4dc09e5a009300029b05075964c4849c102600bc87ab46b38621572d036
+input	media/i-can-talk-audio.wav	input/I can talk audio.wav	e7bff11ce817099d0068101d2ebc8540cf00a3b393e2e6408cd3d4e521f93ed6
+input	media/orange-outfit.jpeg	input/orange_outfit.jpeg	a0fd04f4d0fed6c80c821d9df68299388a482c1cf5df635d0aabb7a7b3efc1ee
+input	media/pixa-bunny-hiphop.jpeg	input/Pixa Bunny HipHop.jpeg	b72b967075628935e0361fe804eb53d185c220f2d48b7611c7caef5c3dd67483
+input	media/pixa-girl.png	input/PixaGirl.png	01da5cedb86c0693f04214247eef74483f82cdc2419cd53ed75ab29fd3e88817
+input	media/three-images-reference-video.mp4	input/Going to be completely honest here_ it was not pleasant poor things___Yall know the feeling wh.mp4	fbbf311c8db8785137427b44ce9dea3309e6fba23d6720444a23303fe9a44260
+input	media/woman-portrait-red.png	input/WomanPortraitRed.png	25f46fa9cae4703f5cc0d2f5839a8d3a0cd81728fb3db4b19a7fc5a151ff5a06

@@ -1,0 +1,40 @@
+CLAUDE SETUP
+============
+
+You only need ONE file for your model.
+
+FL2VA   minimax_h3_fl2va_*.safetensors
+        Text to video, first frame, first and last frame, last frame.
+
+REF2VA  minimax_h3_ref2va_*.safetensors
+        Reference mode: images, video or audio that define a character, place, style,
+        camera move, voice or soundtrack.
+
+Pick the one matching the model you loaded in ComfyUI.
+
+
+STEPS
+
+Either:
+
+  Create a Project, and paste the whole file into the Project instructions. It then
+  applies to every chat inside that Project.
+
+Or:
+
+  Start a new chat and send the whole file as your first message.
+
+Claude has no 8000 character limit, so nothing needs uploading and there is no second
+file to manage.
+
+
+THEN
+
+Describe your video, or attach your image, and ask for a prompt. You get back one code
+block with no chatter around it. Copy it into the H3 prompt field in ComfyUI.
+
+For first-and-last-frame and last-frame videos it will ask how many seconds the video
+is, because the reference image has to land on an exact time. Answer with a number.
+
+
+See "README - start here.txt" in the folder above for what these formulas fix.

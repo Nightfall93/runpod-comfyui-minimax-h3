@@ -1,0 +1,1127 @@
+{
+  "id": "c5beec59-2b88-4f3f-ba35-7640a58a9ba6",
+  "revision": 0,
+  "last_node_id": 239,
+  "last_link_id": 290,
+  "nodes": [
+    {
+      "id": 224,
+      "type": "ConditioningZeroOut",
+      "pos": [
+        236.68760521356202,
+        534.0181236449855
+      ],
+      "size": [
+        204.134765625,
+        26
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 279
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            261
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.30.1",
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "widgets_values": [],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 212,
+      "type": "PixaromaNote",
+      "pos": [
+        -1610.9679534822276,
+        217.83035566381673
+      ],
+      "size": [
+        550.5611758382192,
+        768.8772678618772
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "1227d9898f9d5137533df750611ca97e8c738f3d",
+        "Node name for S&R": "PixaromaNote"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"content\":\"<h1>MODELS AND NODES USED IN THIS WORKFLOW</h1><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><hr class=\\\"pix-note-hr-solid\\\" style=\\\"color: #b8b8b8\\\"><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><h2><span data-ic=\\\"model-v1\\\" class=\\\"pix-note-ic\\\" contenteditable=\\\"false\\\" style=\\\"color: #f66744\\\"></span>&nbsp;Load Diffusion Model</h2><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n<span class=\\\"pix-note-btnblock\\\"><a class=\\\"pix-note-dl\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">Download minimax_h3_ref2va_pruned_int8_convrot.safetensors<span class=\\\"pix-note-btnsize\\\">19.5 GB</span></a></span>&nbsp;\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><div class=\\\"pix-note-folderhint\\\" style=\\\"color: #f66744\\\">Place in: ComfyUI/models/diffusion_models/h3</div><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>Create the <code>h3</code> folder if it does not exist.</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n<span class=\\\"pix-note-btnblock\\\">\\n  <a class=\\\"pix-note-rm\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main/diffusion_models\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">More versions</a>\\n</span>&nbsp;<span class=\\\"pix-note-btnblock\\\"><a class=\\\"pix-note-rm\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">READ LICENSE</a></span>&nbsp;<span class=\\\"pix-note-btnblock\\\"><a class=\\\"pix-note-rm\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/QA-about-License.md\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">More About LICENSE</a></span>&nbsp;</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><hr class=\\\"pix-note-hr-solid\\\" style=\\\"color: #b8b8b8\\\"><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><h2><span data-ic=\\\"CLIP\\\" class=\\\"pix-note-ic\\\" contenteditable=\\\"false\\\" style=\\\"color: #f66744\\\"></span>&nbsp;Load CLIP</h2><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n<span class=\\\"pix-note-btnblock\\\">\\n  <a class=\\\"pix-note-dl\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">Download qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors<span class=\\\"pix-note-btnsize\\\">14.6 GB</span></a>\\n</span>&nbsp;\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><div class=\\\"pix-note-folderhint\\\" style=\\\"color: #f66744\\\">Place in: ComfyUI/models/text_encoders</div><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><hr class=\\\"pix-note-hr-solid\\\" style=\\\"color: #b8b8b8\\\"><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><h2><span data-ic=\\\"VAE\\\" class=\\\"pix-note-ic\\\" contenteditable=\\\"false\\\" style=\\\"color: #f66744\\\"></span>&nbsp;Load VAE</h2><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n<span class=\\\"pix-note-btnblock\\\">\\n  <a class=\\\"pix-note-dl\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">Download minimax_h3_video_vae_fp16.safetensors<span class=\\\"pix-note-btnsize\\\">4.9 GB</span></a>\\n</span>&nbsp;\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n<span class=\\\"pix-note-btnblock\\\">\\n  <a class=\\\"pix-note-dl\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">Download minimax_h3_audio_vae_fp32.safetensors<span class=\\\"pix-note-btnsize\\\">577 MB</span></a>\\n</span>&nbsp;\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><div class=\\\"pix-note-folderhint\\\" style=\\\"color: #f66744\\\">Place in: ComfyUI/models/vae<br></div><hr class=\\\"pix-note-hr-solid\\\" style=\\\"color: #ffffff\\\"><h3>Custom Chat GPT</h3><p><span class=\\\"pix-note-btnblock\\\"><a class=\\\"pix-note-rm\\\" style=\\\"background-color: #f66744\\\" href=\\\"https://chatgpt.com/g/g-6a71f08838cc8191994ae82634d5c4e4-h3-reference-model-prompts\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">Custom ChatGPT for H3 for Reference Model Prompting (Beta)</a></span>&nbsp;</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><hr class=\\\"pix-note-hr-solid\\\" style=\\\"color: #b8b8b8\\\"><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p><span data-ic=\\\"warning-v1\\\" class=\\\"pix-note-ic\\\" contenteditable=\\\"false\\\" style=\\\"color: #f66744\\\"></span>&nbsp;After placing the files, restart ComfyUI or refresh model lists using the <b>R</b> shortcut.</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><hr class=\\\"pix-note-hr-solid\\\" style=\\\"color: #b8b8b8\\\"><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><h2><span data-ic=\\\"nodes-installed\\\" class=\\\"pix-note-ic\\\" contenteditable=\\\"false\\\" style=\\\"color: #f66744\\\"></span>&nbsp;Nodes Installed from Manager</h2><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><ul>\\n  <li>Pixaroma</li>\\n</ul><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><hr class=\\\"pix-note-hr-solid\\\" style=\\\"color: #b8b8b8\\\"><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><h2><span data-ic=\\\"pixaroma\\\" class=\\\"pix-note-ic\\\" contenteditable=\\\"false\\\" style=\\\"color: #f66744\\\"></span>&nbsp;Resources</h2><p>\\n\\n</p><p>\\n\\n</p><p>\\n\\n</p><p>\\n  <a class=\\\"pix-note-discord\\\" href=\\\"https://discord.com/invite/gggpkVgBf3\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">Join Discord</a>&nbsp;\\n  <a class=\\\"pix-note-yt\\\" href=\\\"https://www.youtube.com/@pixaroma\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\">Pixaroma YouTube Channel</a>&nbsp;\\n</p>\",\"buttonColor\":\"#f66744\",\"lineColor\":\"#f66744\",\"width\":550.5611758382192,\"height\":768.8772678618772,\"backgroundColor\":\"#2a2a2a\"}",
+        ""
+      ],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 225,
+      "type": "KSampler",
+      "pos": [
+        236.68760521356202,
+        217.83035566381673
+      ],
+      "size": [
+        270,
+        262
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 274
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 278
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 261
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 290
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            268,
+            269
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.30.1",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        428003307890273,
+        "randomize",
+        20,
+        1,
+        "res_multistep",
+        "simple",
+        1
+      ],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 227,
+      "type": "VAEDecodeAudio",
+      "pos": [
+        569.1587392643017,
+        423.8303556638167
+      ],
+      "size": [
+        185.90827907427627,
+        46
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 269
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 267
+        }
+      ],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            266
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.30.1",
+        "Node name for S&R": "VAEDecodeAudio"
+      },
+      "widgets_values": [],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 226,
+      "type": "VAEDecode",
+      "pos": [
+        569.1587392643017,
+        325.8303556638167
+      ],
+      "size": [
+        185.90827907427627,
+        46
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 268
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 270
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            265
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.30.1",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 195,
+      "type": "CLIPLoader",
+      "pos": [
+        -1032.3327979409496,
+        376.08903760693
+      ],
+      "size": [
+        495.8871826591876,
+        106
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            287
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.76",
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "color": "#f66744",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 196,
+      "type": "VAELoader",
+      "pos": [
+        -1032.3327979409496,
+        558.3477195500432
+      ],
+      "size": [
+        495.8871826591876,
+        58
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            270,
+            288
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.76",
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "color": "#f66744",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 213,
+      "type": "VAELoader",
+      "pos": [
+        -1032.3327979409496,
+        692.6064014931565
+      ],
+      "size": [
+        495.8871826591876,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            267,
+            289
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.76",
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "color": "#f66744",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 237,
+      "type": "MiniMaxH3ReferenceToVideo",
+      "pos": [
+        -244.69204921307045,
+        217.83035566381676
+      ],
+      "size": [
+        444.65202928273084,
+        364
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 287
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 288
+        },
+        {
+          "name": "audio_vae",
+          "type": "VAE",
+          "link": 289
+        },
+        {
+          "label": "ref_image_0",
+          "name": "ref_images.ref_image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 283
+        },
+        {
+          "label": "ref_image_1",
+          "name": "ref_images.ref_image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 285
+        },
+        {
+          "label": "ref_image_2",
+          "name": "ref_images.ref_image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "label": "ref_video_0",
+          "name": "ref_videos.ref_video_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "label": "ref_video_audio_0",
+          "name": "ref_video_audios.ref_video_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "label": "ref_audio_0",
+          "name": "ref_audios.ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": 286
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 281
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 282
+        },
+        {
+          "name": "length",
+          "type": "INT",
+          "widget": {
+            "name": "length"
+          },
+          "link": 280
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            278,
+            279
+          ]
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            290
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.30.1",
+        "Node name for S&R": "MiniMaxH3ReferenceToVideo"
+      },
+      "widgets_values": [
+        "",
+        1344,
+        768,
+        124,
+        "match"
+      ],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 198,
+      "type": "PixaromaLabel",
+      "pos": [
+        -1610.9679534822276,
+        95.8319351452273
+      ],
+      "size": [
+        530,
+        51
+      ],
+      "flags": {
+        "no_title": true
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "80b307e8d1882fd933959cb0ea94a26d143557b5",
+        "Node name for S&R": "PixaromaLabel",
+        "aux_id": "pixaroma/ComfyUI-Pixaroma"
+      },
+      "widgets_values": [
+        "{\"text\":\"Minimax H3 - Reference Two Images\",\"fontSize\":31,\"fontFamily\":\"Arial\",\"fontColor\":\"#ffffff\",\"textAlign\":\"left\",\"backgroundColor\":\"#f66744\",\"padding\":10,\"borderRadius\":0,\"opacity\":1,\"fontWeight\":\"normal\",\"lineHeight\":1}"
+      ],
+      "color": "rgba(0,0,0,0)",
+      "bgcolor": "rgba(0,0,0,0)"
+    },
+    {
+      "id": 223,
+      "type": "PixaromaSizes",
+      "pos": [
+        -509.51259285471383,
+        217.83035566381673
+      ],
+      "size": [
+        240,
+        534
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            281
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            282
+          ]
+        }
+      ],
+      "title": "1. Pick Orientation and Size",
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "a13e16f26ce1b1de096fe97ded9b95ec3d2b62ab",
+        "Node name for S&R": "PixaromaSizes",
+        "sizesState": "{\"version\":1,\"sizes\":[[608,352],[736,416],[864,480],[960,544],[1056,608],[1152,640],[1216,672],[1280,736],[1344,768],[1376,768],[1504,832],[1664,928],[1824,1024],[1920,1088]],\"selected\":2,\"orientation\":\"portrait\",\"snap\":32,\"accent\":null,\"collapsed\":false,\"starred\":[\"480x864\",\"672x1216\",\"768x1344\"],\"w\":480,\"h\":864}"
+      },
+      "widgets_values": [
+        {
+          "version": 1,
+          "sizes": [
+            [
+              608,
+              352
+            ],
+            [
+              736,
+              416
+            ],
+            [
+              864,
+              480
+            ],
+            [
+              960,
+              544
+            ],
+            [
+              1056,
+              608
+            ],
+            [
+              1152,
+              640
+            ],
+            [
+              1216,
+              672
+            ],
+            [
+              1280,
+              736
+            ],
+            [
+              1344,
+              768
+            ],
+            [
+              1376,
+              768
+            ],
+            [
+              1504,
+              832
+            ],
+            [
+              1664,
+              928
+            ],
+            [
+              1824,
+              1024
+            ],
+            [
+              1920,
+              1088
+            ]
+          ],
+          "selected": 2,
+          "orientation": "portrait",
+          "snap": 32,
+          "accent": null,
+          "collapsed": false,
+          "starred": [
+            "480x864",
+            "672x1216",
+            "768x1344"
+          ],
+          "w": 480,
+          "h": 864
+        }
+      ],
+      "color": "#14436c",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 234,
+      "type": "PixaromaDuration",
+      "pos": [
+        -244.69204921307045,
+        646.3477195500432
+      ],
+      "size": [
+        444.65202928273084,
+        80
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "frames",
+          "type": "INT",
+          "links": [
+            280
+          ]
+        },
+        {
+          "name": "seconds",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "title": "2. Duration Pixaroma",
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "c6efed39bfc2e566fc5542044d728cca7d2e1a62",
+        "Node name for S&R": "PixaromaDuration",
+        "durationState": {
+          "seconds": 4,
+          "fps": 24,
+          "step": 17,
+          "plus": 5,
+          "minFrames": 5,
+          "mode": "recipe",
+          "formula": "",
+          "pick": "chips",
+          "values": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            10,
+            12,
+            15
+          ],
+          "min": 1,
+          "max": 10,
+          "stepSec": 0.5,
+          "recipeName": "MiniMax H3"
+        }
+      },
+      "widgets_values": [],
+      "color": "#14436c",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 236,
+      "type": "PixaromaLoadImageMini",
+      "pos": [
+        -1032.3327979409496,
+        825.7226604262963
+      ],
+      "size": [
+        495.8871826591876,
+        621.8437291144049
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            283
+          ]
+        },
+        {
+          "name": "image_info",
+          "type": "PIX_IMAGE_INFO",
+          "links": null
+        }
+      ],
+      "title": "3. Load Image - ref_image_0",
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "13f9d5d1da21e09515a5843e9392c3f69a435297",
+        "Node name for S&R": "PixaromaLoadImageMini"
+      },
+      "widgets_values": [
+        "WomanPortraitRed.png",
+        "image",
+        ""
+      ],
+      "color": "#14436c",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 238,
+      "type": "PixaromaLoadImageMini",
+      "pos": [
+        -497.99815164340737,
+        825.7226604262963
+      ],
+      "size": [
+        495.8871826591876,
+        621.8437291144049
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            285
+          ]
+        },
+        {
+          "name": "image_info",
+          "type": "PIX_IMAGE_INFO",
+          "links": null
+        }
+      ],
+      "title": "4. Load Image - ref_image_1",
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "13f9d5d1da21e09515a5843e9392c3f69a435297",
+        "Node name for S&R": "PixaromaLoadImageMini"
+      },
+      "widgets_values": [
+        "exotic_world.jpeg",
+        "image",
+        ""
+      ],
+      "color": "#14436c",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 235,
+      "type": "PixaromaRunTimer",
+      "pos": [
+        719.9813235265945,
+        646.3477195500432
+      ],
+      "size": [
+        139,
+        50
+      ],
+      "flags": {
+        "no_title": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "13f9d5d1da21e09515a5843e9392c3f69a435297",
+        "Node name for S&R": "PixaromaRunTimer",
+        "runTimerState": {
+          "version": 1,
+          "color": "#f66744",
+          "decimals": 0,
+          "chime": true,
+          "sound": "",
+          "volume": 0
+        },
+        "runTimerLastMs": 10539.89999999851
+      },
+      "widgets_values": [],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 194,
+      "type": "UNETLoader",
+      "pos": [
+        -1032.3327979409496,
+        217.83035566381673
+      ],
+      "size": [
+        495.8871826591876,
+        82
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            274
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.76",
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "h3/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "color": "#f66744",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 228,
+      "type": "PixaromaSaveMp4",
+      "pos": [
+        569.1587392643019,
+        758.8001465118633
+      ],
+      "size": [
+        440.6451685245851,
+        688.766243028838
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video_frames",
+          "type": "IMAGE",
+          "link": 265
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 266
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "a13e16f26ce1b1de096fe97ded9b95ec3d2b62ab",
+        "Node name for S&R": "PixaromaSaveMp4",
+        "pixMp4Video": {
+          "filename": "Video_00085.mp4",
+          "subfolder": "",
+          "type": "output"
+        }
+      },
+      "widgets_values": [
+        24,
+        "Video",
+        "save",
+        false,
+        ""
+      ],
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 239,
+      "type": "PixaromaPrompt",
+      "pos": [
+        36.33649465413487,
+        825.7226604262964
+      ],
+      "size": [
+        494.3747809718123,
+        621.8437291144048
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "text",
+          "name": "text_in",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            286
+          ]
+        }
+      ],
+      "title": "5 Prompt Pixaroma",
+      "properties": {
+        "cnr_id": "ComfyUI-Pixaroma",
+        "ver": "41e68d88a5b499d1e44333e41579c94b6d1cf895",
+        "Node name for S&R": "PixaromaPrompt",
+        "promptState": {
+          "text": "subject_definitions:\n<Subject 1> is the blonde woman from the first reference image, preserving her facial identity, shoulder-length softly waved blonde hair, fair skin, slim figure, red satin fitted dress, jewelry, and elegant photorealistic appearance.\n<Subject 2> is the plain warm gray interior wall and directional golden light from the first reference image, serving as the physical barrier directly behind <Subject 1> at the beginning of the target video.\n<Subject 3> is the tropical paradise environment from the second reference image, preserving the turquoise lagoon, pale sandy shore, dense green palms and tropical vegetation, distant jagged mountains, overwater structures, and warm sunset sky as the hidden world revealed behind <Subject 2>.\n\nsummary:\n[reference generation] The target video shows <Subject 1> standing in front of <Subject 2>, turning away from the camera and delivering one decisive backward kick into the wall. The impact breaks open the ordinary interior surface and reveals <Subject 3> as a vivid, physically convincing paradise world directly beyond the opening.\n\nretention_analysis:\n<Subject 1> (appears in [Shot 1]): fully_preserved - her facial identity, blonde hairstyle, red satin dress, jewelry, body proportions, and photorealistic appearance remain recognizable while her pose changes naturally through the turn and kick.\n<Subject 2> (appears in [Shot 1]): partially_preserved - the original warm gray wall, lighting, and interior appearance are retained at first, then deliberately fractured and opened by the kick.\n<Subject 3> (appears in [Shot 1]): fully_preserved - the turquoise water, tropical vegetation, sandy shore, mountainous horizon, warm sky, and luxurious island character are retained as the environment revealed behind the broken wall.\n\ndetailed_description:\nThe target video uses cinematic photorealistic live action with warm directional light on the interior side and richer tropical sunset illumination spilling through the reveal. Keep realistic human motion, convincing material physics, detailed fabric response, and a seamless contrast between the restrained indoor setting and the saturated paradise beyond.\n[Shot 1] A medium-full composition frames <Subject 1> standing confidently in front of <Subject 2>, initially facing the camera with her blonde waves resting over her shoulders and the red satin dress catching narrow golden highlights. The wall fills most of the background so its ordinary solid surface is clearly established before anything changes. She quickly turns her torso and hips away from the camera, her hair swinging outward and the satin fabric twisting naturally around her waist as she shifts her weight onto one supporting leg. The camera performs a small arc around her with small amplitude, keeping her body and the wall directly behind her visible. She plants her supporting foot firmly, raises the opposite leg, and drives one sharp backward kick into the center of <Subject 2>. Her heel makes solid contact with a heavy impact, producing a compact burst of dust and sending branching cracks rapidly outward from the strike point. The cracked section does not simply collapse into darkness: warm turquoise and golden light immediately shines through the fractures, making it clear that another world exists directly behind the wall. The broken surface then gives way in several large pieces that fall inward and outward with believable weight, opening a broad irregular hole. Through the opening, <Subject 3> is revealed at full depth: bright turquoise lagoon water near the threshold, pale sand, layered palms and lush vegetation, distant jagged green mountains, and a glowing sunset sky. The paradise is not displayed like a flat picture; it reads as a continuous three-dimensional landscape extending far beyond the destroyed wall, with natural atmospheric perspective and sunlight entering the interior. <Subject 1> lowers her kicking leg, regains balance, and turns her upper body slightly toward the opening as her hair settles. The camera pushes in with small amplitude toward the newly opened passage, ending with <Subject 1> in the foreground and the expansive tropical world clearly visible beyond the broken edges of <Subject 2>.\n\noverall_soundscape:\nA soft indoor room tone and faint air movement establish the initial space. The kick produces one dense wall impact followed by sharp cracking, falling plaster and masonry fragments, then a subtle transition into distant tropical water, light coastal wind, and faint palm-leaf movement coming through the opening.\n\nnon_diegetic_music:\nA restrained cinematic score begins with low sustained strings and a sparse pulse, then introduces a bright rising orchestral shimmer and soft percussion at the moment the paradise is revealed, ending on a sustained luminous chord.",
+          "order": "mine",
+          "sep": ", ",
+          "accent": null,
+          "showExpanded": false,
+          "lastRun": "subject_definitions:\n<Subject 1> is the blonde woman from the first reference image, preserving her facial identity, shoulder-length softly waved blonde hair, fair skin, slim figure, red satin fitted dress, jewelry, and elegant photorealistic appearance.\n<Subject 2> is the plain warm gray interior wall and directional golden light from the first reference image, serving as the physical barrier directly behind <Subject 1> at the beginning of the target video.\n<Subject 3> is the tropical paradise environment from the second reference image, preserving the turquoise lagoon, pale sandy shore, dense green palms and tropical vegetation, distant jagged mountains, overwater structures, and warm sunset sky as the hidden world revealed behind <Subject 2>.\n\nsummary:\n[reference generation] The target video shows <Subject 1> standing in front of <Subject 2>, turning away from the camera and delivering one decisive backward kick into the wall. The impact breaks open the ordinary interior surface and reveals <Subject 3> as a vivid, physically convincing paradise world directly beyond the opening.\n\nretention_analysis:\n<Subject 1> (appears in [Shot 1]): fully_preserved - her facial identity, blonde hairstyle, red satin dress, jewelry, body proportions, and photorealistic appearance remain recognizable while her pose changes naturally through the turn and kick.\n<Subject 2> (appears in [Shot 1]): partially_preserved - the original warm gray wall, lighting, and interior appearance are retained at first, then deliberately fractured and opened by the kick.\n<Subject 3> (appears in [Shot 1]): fully_preserved - the turquoise water, tropical vegetation, sandy shore, mountainous horizon, warm sky, and luxurious island character are retained as the environment revealed behind the broken wall.\n\ndetailed_description:\nThe target video uses cinematic photorealistic live action with warm directional light on the interior side and richer tropical sunset illumination spilling through the reveal. Keep realistic human motion, convincing material physics, detailed fabric response, and a seamless contrast between the restrained indoor setting and the saturated paradise beyond.\n[Shot 1] A medium-full composition frames <Subject 1> standing confidently in front of <Subject 2>, initially facing the camera with her blonde waves resting over her shoulders and the red satin dress catching narrow golden highlights. The wall fills most of the background so its ordinary solid surface is clearly established before anything changes. She quickly turns her torso and hips away from the camera, her hair swinging outward and the satin fabric twisting naturally around her waist as she shifts her weight onto one supporting leg. The camera performs a small arc around her with small amplitude, keeping her body and the wall directly behind her visible. She plants her supporting foot firmly, raises the opposite leg, and drives one sharp backward kick into the center of <Subject 2>. Her heel makes solid contact with a heavy impact, producing a compact burst of dust and sending branching cracks rapidly outward from the strike point. The cracked section does not simply collapse into darkness: warm turquoise and golden light immediately shines through the fractures, making it clear that another world exists directly behind the wall. The broken surface then gives way in several large pieces that fall inward and outward with believable weight, opening a broad irregular hole. Through the opening, <Subject 3> is revealed at full depth: bright turquoise lagoon water near the threshold, pale sand, layered palms and lush vegetation, distant jagged green mountains, and a glowing sunset sky. The paradise is not displayed like a flat picture; it reads as a continuous three-dimensional landscape extending far beyond the destroyed wall, with natural atmospheric perspective and sunlight entering the interior. <Subject 1> lowers her kicking leg, regains balance, and turns her upper body slightly toward the opening as her hair settles. The camera pushes in with small amplitude toward the newly opened passage, ending with <Subject 1> in the foreground and the expansive tropical world clearly visible beyond the broken edges of <Subject 2>.\n\noverall_soundscape:\nA soft indoor room tone and faint air movement establish the initial space. The kick produces one dense wall impact followed by sharp cracking, falling plaster and masonry fragments, then a subtle transition into distant tropical water, light coastal wind, and faint palm-leaf movement coming through the opening.\n\nnon_diegetic_music:\nA restrained cinematic score begins with low sustained strings and a sparse pulse, then introduces a bright rising orchestral shimmer and soft percussion at the moment the paradise is revealed, ending on a sustained luminous chord."
+        }
+      },
+      "widgets_values": [
+        ""
+      ],
+      "color": "#14436c",
+      "bgcolor": "#2a2a2a"
+    }
+  ],
+  "links": [
+    [
+      261,
+      224,
+      0,
+      225,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      265,
+      226,
+      0,
+      228,
+      0,
+      "IMAGE"
+    ],
+    [
+      266,
+      227,
+      0,
+      228,
+      1,
+      "AUDIO"
+    ],
+    [
+      267,
+      213,
+      0,
+      227,
+      1,
+      "VAE"
+    ],
+    [
+      268,
+      225,
+      0,
+      226,
+      0,
+      "LATENT"
+    ],
+    [
+      269,
+      225,
+      0,
+      227,
+      0,
+      "LATENT"
+    ],
+    [
+      270,
+      196,
+      0,
+      226,
+      1,
+      "VAE"
+    ],
+    [
+      274,
+      194,
+      0,
+      225,
+      0,
+      "MODEL"
+    ],
+    [
+      278,
+      237,
+      0,
+      225,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      279,
+      237,
+      0,
+      224,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      280,
+      234,
+      0,
+      237,
+      12,
+      "INT"
+    ],
+    [
+      281,
+      223,
+      0,
+      237,
+      10,
+      "INT"
+    ],
+    [
+      282,
+      223,
+      1,
+      237,
+      11,
+      "INT"
+    ],
+    [
+      283,
+      236,
+      0,
+      237,
+      3,
+      "IMAGE"
+    ],
+    [
+      285,
+      238,
+      0,
+      237,
+      4,
+      "IMAGE"
+    ],
+    [
+      286,
+      239,
+      0,
+      237,
+      9,
+      "STRING"
+    ],
+    [
+      287,
+      195,
+      0,
+      237,
+      0,
+      "CLIP"
+    ],
+    [
+      288,
+      196,
+      0,
+      237,
+      1,
+      "VAE"
+    ],
+    [
+      289,
+      213,
+      0,
+      237,
+      2,
+      "VAE"
+    ],
+    [
+      290,
+      237,
+      1,
+      225,
+      3,
+      "LATENT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6934334949441536,
+      "offset": [
+        1846.3099368120463,
+        42.008980129624824
+      ]
+    },
+    "frontendVersion": "1.47.12",
+    "node_versions": {
+      "ComfyUI-GGUF": "8098c7149fa4ff14991eb3347a5585051ceeafbe",
+      "comfy-core": "v0.3.10-37-gd055325",
+      "rgthree-comfy": "5d771b8b56a343c24a26e8cea1f0c87c3d58102f"
+    },
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true,
+    "workflowRendererVersion": "LG"
+  },
+  "version": 0.4
+}

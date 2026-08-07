@@ -1,0 +1,22 @@
+diff --git a/comfy/ldm/modules/attention.py b/comfy/ldm/modules/attention.py
+index 08503d9..abf2a30 100644
+--- a/comfy/ldm/modules/attention.py
++++ b/comfy/ldm/modules/attention.py
+@@ -1,3 +1,4 @@
+ import math
++import os
+ import sys
+ import inspect
+@@ -758,4 +759,11 @@ def attention3_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape
+-if model_management.sage_attention_enabled():
++if os.environ.get("COMFY_SAGE_ATTENTION3", "0") == "1":
++    if not SAGE_ATTENTION3_IS_AVAILABLE:
++        raise RuntimeError(
++            "COMFY_SAGE_ATTENTION3=1, but the sageattn3 package is unavailable."
++        )
++    logging.info("Using SageAttention3")
++    optimized_attention = attention3_sage
++elif model_management.sage_attention_enabled():
+     logging.info("Using sage attention")
+     optimized_attention = attention_sage
+ elif model_management.flash_attention_enabled():

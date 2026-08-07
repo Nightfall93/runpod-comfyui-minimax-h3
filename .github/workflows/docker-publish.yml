@@ -1,0 +1,70 @@
+name: Build and publish MiniMax H3 CUDA 13 images
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: ampere
+            cuda_arch: "8.6"
+            sage_major: "2"
+            sage_version: "2.2.0"
+            comfy_sage3: "0"
+          - family: ada
+            cuda_arch: "8.9"
+            sage_major: "2"
+            sage_version: "2.2.0"
+            comfy_sage3: "0"
+          - family: blackwell
+            cuda_arch: "12.0"
+            sage_major: "3"
+            sage_version: "1.0.0"
+            comfy_sage3: "1"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate scripts, workflow bundle, and preflight gates
+        run: bash ./tests/run_all.sh
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and publish
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            SAGE_CUDA_ARCH_LIST=${{ matrix.cuda_arch }}
+            SAGE_ATTENTION_MAJOR=${{ matrix.sage_major }}
+            SAGE_ATTENTION_VERSION=${{ matrix.sage_version }}
+            COMFY_SAGE_ATTENTION3=${{ matrix.comfy_sage3 }}
+            MINIMAX_H3_GPU_FAMILY=${{ matrix.family }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cuda13-${{ matrix.family }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}-${{ matrix.family }}

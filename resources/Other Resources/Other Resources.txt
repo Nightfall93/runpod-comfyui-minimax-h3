@@ -1,0 +1,8 @@
+MiniMax H3 - Prompt Guide
+https://huggingface.co/MiniMaxAI/MiniMax-H3/tree/main/docs
+
+Custom ChatGPT I made for prompting - for text2image and image2video
+https://chatgpt.com/g/g-6a70726c663c81919ff3199d41c73f0e-minimax-h3-prompts
+
+Custom ChatGPT I made for prompting - for reference to video
+https://chatgpt.com/g/g-6a71f08838cc8191994ae82634d5c4e4-h3-reference-model-prompts
