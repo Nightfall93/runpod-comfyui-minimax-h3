@@ -91,6 +91,9 @@ grep -Fq 'SAGE_ATTENTION_MAJOR=${{ matrix.sage_major }}' \
 grep -Fq 'COMFY_SAGE_ATTENTION3=${{ matrix.comfy_sage3 }}' \
   "$repo_root/.github/workflows/docker-publish.yml"
 grep -Fq 'sageattention3_blackwell' "$repo_root/Dockerfile"
+grep -Fq 'COPY --from=cuda-devel /usr/local/cuda/targets/x86_64-linux/lib/stubs/' \
+  "$repo_root/Dockerfile"
+grep -Fq 'LIBRARY_PATH=/usr/local/cuda/lib64/stubs' "$repo_root/Dockerfile"
 grep -Fq 'COMFY_SAGE_ATTENTION3' "$repo_root/patches/comfyui-sage3-global.patch"
 
 echo "SageAttention 2 Ampere/Ada and SageAttention 3 Blackwell matrix tests passed."

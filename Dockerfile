@@ -15,6 +15,8 @@ ENV CUDA_HOME=/usr/local/cuda \
     MAX_JOBS=1
 
 COPY --from=cuda-devel /usr/local/cuda/include/ /usr/local/cuda/include/
+COPY --from=cuda-devel /usr/local/cuda/targets/x86_64-linux/lib/stubs/ \
+  /usr/local/cuda/lib64/stubs/
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential git ninja-build \
@@ -50,7 +52,8 @@ RUN git init /tmp/SageAttention \
         sed -i \
           's/cc_major, cc_minor = torch.cuda.get_device_capability()/cc_major, cc_minor = map(int, os.environ["SAGE_CUDA_ARCH_LIST"].split("."))/' \
           /tmp/SageAttention/sageattention3_blackwell/setup.py; \
-        python3 -m pip wheel --no-deps --no-build-isolation \
+        LIBRARY_PATH=/usr/local/cuda/lib64/stubs \
+          python3 -m pip wheel --no-deps --no-build-isolation \
           --wheel-dir /tmp/sage-wheels \
           /tmp/SageAttention/sageattention3_blackwell \
         ;; \
