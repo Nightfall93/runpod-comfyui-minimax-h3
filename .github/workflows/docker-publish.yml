@@ -12,7 +12,8 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # OCI repository names must be lowercase; GitHub preserves owner casing.
+  IMAGE_NAME: nightfall93/runpod-comfyui-minimax-h3
 
 jobs:
   build-and-push:
