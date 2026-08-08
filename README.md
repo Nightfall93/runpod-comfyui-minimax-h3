@@ -1,14 +1,15 @@
 # RunPod ComfyUI MiniMax H3 workflow template
 
 Pinned RunPod image and cold-start setup for the ten MiniMax H3 workflows in
-the Pixaroma EP29 workflow folder. Both H3 diffusion families are ready before
-ComfyUI starts:
+the Pixaroma EP29 workflow folder. One H3 diffusion family is ready when
+ComfyUI starts and the other downloads in the background:
 
 - `minimax_h3_fl2va_pruned_int8_convrot.safetensors`
 - `minimax_h3_ref2va_pruned_int8_convrot.safetensors`
 
 The shared Qwen3-VL text encoder and MiniMax audio/video VAEs are downloaded in
-the same blocking cold start. All five files are pinned to Hugging Face revision
+the blocking phase with the selected first diffusion model. All five files are
+pinned to Hugging Face revision
 `eb8a16107c595128b3a578f82d2ce2f75920c355` and total 63,440,965,087 bytes
 (about 59.1 GiB).
 
@@ -44,6 +45,8 @@ Supported environment variables:
 - `JUPYTER_PASSWORD`
 - `HF_TOKEN` (optional, but recommended for better Hugging Face rate limits)
 - `NTFY_TOPIC`, `NTFY_SERVER_URL`, and `NTFY_TOKEN` (optional notifications)
+- `MINIMAX_H3_FIRST_MODEL` (`ref2va` by default; set `fl2va` to reverse the
+  foreground/background diffusion-model order)
 - `MINIMAX_H3_DOWNLOAD_JOBS` (default `2`, allowed `1`-`4`)
 - `MINIMAX_H3_DISK_RESERVE_GB` (default `10`)
 - `MINIMAX_H3_MIN_DOWNLOAD_MIBPS` (default `5` before slow-link reconnects)
@@ -92,9 +95,11 @@ compute capability, failed import, or failed kernel smoke test stops startup.
 
 Downloads use `.part` files, resume across restarts, run two at a time by default,
 retry transient errors, reconnect persistently slow transfers, and move into the
-final model path only after exact-size and safetensors-header validation. A full
-SHA256 pass is available through `MINIMAX_H3_VERIFY_SHA256=1`. Invalid completed
-or oversized partial files are preserved with an `.invalid-TIMESTAMP` suffix.
+final model path only after exact-size and safetensors-header validation. The
+selected diffusion model and all shared assets block startup; the other diffusion
+model continues in the background while ComfyUI is usable. A full SHA256 pass is
+available through `MINIMAX_H3_VERIFY_SHA256=1`. Invalid completed or oversized
+partial files are preserved with an `.invalid-TIMESTAMP` suffix.
 
 Startup state is written atomically to:
 
@@ -102,8 +107,9 @@ Startup state is written atomically to:
 /workspace/runpod-slim/minimax-h3-download.status
 ```
 
-ComfyUI starts only when both diffusion models, the text encoder, both VAEs, and
-all ten workflows have passed validation.
+ComfyUI starts when the selected diffusion model, text encoder, both VAEs, and
+all ten workflows have passed validation. Background completion or failure is
+reported in the container log, optional ntfy notifications, and the status file.
 
 ## Local validation
 
@@ -115,7 +121,8 @@ bash ./tests/run_all.sh
 
 The test suite covers all three driver/architecture gates, the Sage 2/Sage 3
 build matrix and fatal mismatch paths, valid and invalid
-safetensors headers, a mocked partial-download resume, manifest installation and
+safetensors headers, foreground/background model-priority selection, a mocked
+partial-download resume, manifest installation and
 customization preservation, manifest hashes, JSON parsing, Linux model paths,
 exact workflow count, model coverage, required H3 node types, and referenced
 sample inputs. The same suite runs before every image build in GitHub Actions.

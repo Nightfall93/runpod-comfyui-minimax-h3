@@ -410,6 +410,35 @@ init_model_manifest() {
   )
 }
 
+select_model_priority() {
+  local configured="${MINIMAX_H3_FIRST_MODEL:-ref2va}"
+  configured="${configured,,}"
+
+  case "$configured" in
+    ref2va)
+      FIRST_MODEL_INDEX=1
+      FIRST_MODEL_NAME="REF2VA"
+      DEFERRED_MODEL_INDEX=0
+      DEFERRED_MODEL_NAME="FL2VA"
+      ;;
+    fl2va)
+      FIRST_MODEL_INDEX=0
+      FIRST_MODEL_NAME="FL2VA"
+      DEFERRED_MODEL_INDEX=1
+      DEFERRED_MODEL_NAME="REF2VA"
+      ;;
+    *)
+      echo "WARNING: MINIMAX_H3_FIRST_MODEL must be 'ref2va' or 'fl2va'; using ref2va."
+      FIRST_MODEL_INDEX=1
+      FIRST_MODEL_NAME="REF2VA"
+      DEFERRED_MODEL_INDEX=0
+      DEFERRED_MODEL_NAME="FL2VA"
+      ;;
+  esac
+
+  echo "Startup priority: $FIRST_MODEL_NAME is required before ComfyUI starts; $DEFERRED_MODEL_NAME will download in the background."
+}
+
 prepare_local_models() {
   local index out part expected actual
   for index in "${!DOWNLOAD_OUTPUTS[@]}"; do
@@ -712,9 +741,11 @@ download_group() {
   echo "Completed $label downloads in $(format_eta "$elapsed") at aggregate average $(numfmt --to=iec-i --suffix=B "$average_speed")/s."
 }
 
-validate_all_models() {
+validate_model_group() {
+  local label="$1"
+  shift
   local index actual_sha256 out
-  for index in "${!DOWNLOAD_OUTPUTS[@]}"; do
+  for index in "$@"; do
     out="${DOWNLOAD_OUTPUTS[$index]}"
     if ! validate_model_file "$out" \
       "${DOWNLOAD_SIZES[$index]}" "${DOWNLOAD_SHA256[$index]}"; then
@@ -731,7 +762,13 @@ validate_all_models() {
       fi
     fi
   done
-  echo "Validated both H3 diffusion models and all three shared model assets."
+  echo "Validated $label."
+}
+
+validate_all_models() {
+  local -a all_downloads=(0 1 2 3 4)
+  validate_model_group "both H3 diffusion models and all three shared model assets" \
+    "${all_downloads[@]}"
 }
 
 patch_start_credentials() {
@@ -755,15 +792,17 @@ PY_PATCH_START
 }
 
 start_ready_notification() {
+  local readiness_detail="$1"
   [ -n "${NTFY_TOPIC:-}" ] || return 0
   echo "Watching for ComfyUI readiness before sending ntfy notification..."
   (
+    trap - EXIT
     trap '' HUP
     for _ in $(seq 1 180); do
       if "$CURL_BIN" -fsS --max-time 2 http://127.0.0.1:8188/ >/dev/null 2>&1; then
         notify_ntfy \
           "MiniMax H3 ComfyUI is ready" "high" "tada" \
-          "ComfyUI started with both MiniMax H3 model families available."
+          "$readiness_detail"
         exit 0
       fi
       sleep 5
@@ -772,9 +811,45 @@ start_ready_notification() {
   ) &
 }
 
+start_deferred_model_download() {
+  local index="$1"
+  local deferred_name="$2"
+  local output="${DOWNLOAD_OUTPUTS[$index]}"
+  local filename="$(basename "$output")"
+
+  write_status "background-downloading" \
+    "ComfyUI is starting with $FIRST_MODEL_NAME ready; downloading $deferred_name ($filename) in the background."
+  (
+    # The foreground setup EXIT trap must not mark a later background failure as
+    # a failed cold start. Ignore HUP so replacing the wrapper with /start.sh does
+    # not interrupt the resumable transfer.
+    trap - EXIT
+    trap '' HUP
+    if download_group "MINIMAX-H3-BACKGROUND" "$index" \
+      && validate_model_group "$deferred_name diffusion model" "$index"; then
+      write_status "ready" \
+        "Both MiniMax H3 diffusion models and all shared assets passed validation."
+      notify_ntfy \
+        "MiniMax H3 background model ready" "high" "white_check_mark" \
+        "$deferred_name finished downloading and is ready in ComfyUI. Refresh the browser model list if it is already open."
+      echo "=== Background $deferred_name download is ready: $filename ==="
+    else
+      write_status "background-failed" \
+        "$deferred_name background download failed; its partial file was preserved for the next restart."
+      notify_ntfy \
+        "MiniMax H3 background download failed" "urgent" "warning" \
+        "$deferred_name failed to download. The ready $FIRST_MODEL_NAME workflow remains usable and the partial download will resume on restart."
+      echo "ERROR: Background $deferred_name download failed; partial data was preserved." >&2
+      exit 1
+    fi
+  ) &
+  echo "Background $deferred_name downloader started as PID $!."
+}
+
 main() {
-  local -a all_downloads=(0 1 2 3 4)
+  local -a foreground_downloads
   local setup_complete=0
+  local readiness_detail
 
   echo "=== MiniMax H3 cold-start setup starting ==="
   write_status "preflight" "Validating CUDA, ComfyUI, bundle, remote assets, and disk space."
@@ -793,24 +868,31 @@ main() {
   validate_installed_workflows
 
   init_model_manifest
+  select_model_priority
+  foreground_downloads=("$FIRST_MODEL_INDEX" 2 3 4)
   prepare_local_models
   preflight_remote_models
   preflight_disk_space
 
-  write_status "downloading" "Downloading two diffusion models and three shared assets with resumable transfers."
-  download_group "MINIMAX-H3" "${all_downloads[@]}"
-  validate_all_models
+  write_status "foreground-downloading" \
+    "Downloading $FIRST_MODEL_NAME and all three shared assets before ComfyUI starts."
+  download_group "MINIMAX-H3-FOREGROUND" "${foreground_downloads[@]}"
+  validate_model_group "$FIRST_MODEL_NAME and all three shared model assets" \
+    "${foreground_downloads[@]}"
 
   patch_start_credentials
-  start_ready_notification
-  write_status "ready" "Both MiniMax H3 diffusion models and all shared assets passed validation."
+  readiness_detail="ComfyUI started with $FIRST_MODEL_NAME ready. $DEFERRED_MODEL_NAME is downloading in the background; refresh the model list after its completion notification."
+  start_ready_notification "$readiness_detail"
+  write_status "foreground-ready" \
+    "$FIRST_MODEL_NAME and all shared assets are ready; ComfyUI is starting and $DEFERRED_MODEL_NAME will download in the background."
   setup_complete=1
   trap - EXIT
 
   notify_ntfy \
-    "MiniMax H3 models ready" "high" "white_check_mark" \
-    "Both H3 diffusion models, Qwen text encoder, and audio/video VAEs are ready. ComfyUI is starting."
-  echo "=== MiniMax H3 models and workflows are ready ==="
+    "MiniMax H3 foreground models ready" "high" "white_check_mark" \
+    "$FIRST_MODEL_NAME, the Qwen text encoder, and audio/video VAEs are ready. ComfyUI is starting while $DEFERRED_MODEL_NAME downloads in the background."
+  start_deferred_model_download "$DEFERRED_MODEL_INDEX" "$DEFERRED_MODEL_NAME"
+  echo "=== MiniMax H3 $FIRST_MODEL_NAME workflows are ready ==="
   echo "Returning to wrapper. SageAttention bootstrap will run next."
 }
 
