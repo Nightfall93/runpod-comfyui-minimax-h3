@@ -16,7 +16,7 @@ install_bundle
 validate_installed_workflows
 
 workflow_count="$(find "$COMFY/user/default/workflows/MiniMax H3" -type f -name '*.json' | wc -l | tr -d '[:space:]')"
-[ "$workflow_count" = "10" ]
+[ "$workflow_count" = "12" ]
 [ -f "$COMFY/input/.h1 Collage.png" ]
 [ -f "$COMFY/input/Going to be completely honest here_ it was not pleasant poor things___Yall know the feeling wh.mp4" ]
 
@@ -25,5 +25,20 @@ printf '{"customized":true}\n' > "$custom"
 second_install_output="$(install_bundle)"
 grep -q "Preserved customized workflow" <<< "$second_install_output"
 grep -q '"customized":true' "$custom"
+
+GPU_FAMILY=ampere
+family_switch_output="$(install_bundle)"
+grep -q "Preserved family-incompatible workflow" <<< "$family_switch_output"
+workflow_count="$(find "$COMFY/user/default/workflows/MiniMax H3" -type f -name '*.json' | wc -l | tr -d '[:space:]')"
+[ "$workflow_count" = "11" ]
+[ ! -f "$COMFY/user/default/workflows/MiniMax H3/5. Seed Hunter (Ada-Blackwell)/Minimax H3 - Seed Hunter + Upscale + Continuation v1.2.1.json" ]
+find "$COMFY/user/default/workflows/MiniMax H3" \
+  -type f -name '*.json.unsupported-on-ampere-*' | grep -q .
+
+COMFY="$tmp/ComfyUI-Ampere"
+mkdir -p "$COMFY"
+install_bundle >/dev/null
+validate_installed_workflows
+[ "$(find "$COMFY/user/default/workflows/MiniMax H3" -type f -name '*.json' | wc -l | tr -d '[:space:]')" = "11" ]
 
 echo "Bundle installation and customization-preservation tests passed."

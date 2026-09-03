@@ -95,5 +95,11 @@ grep -Fq 'COPY --from=cuda-devel /usr/local/cuda/targets/x86_64-linux/lib/stubs/
   "$repo_root/Dockerfile"
 grep -Fq 'LIBRARY_PATH=/usr/local/cuda/lib64/stubs' "$repo_root/Dockerfile"
 grep -Fq 'COMFY_SAGE_ATTENTION3' "$repo_root/patches/comfyui-sage3-global.patch"
+grep -Fq 'ARG COMFYUI_COMMIT=12d5279438bfefc058a269eae805ceab6047777f' \
+  "$repo_root/Dockerfile"
+grep -Fq 'COPY seed-hunter-node-lock.tsv /opt/minimax-h3/seed-hunter-node-lock.tsv' \
+  "$repo_root/Dockerfile"
+grep -Fq 'python3 main.py --cpu --quick-test-for-ci' "$repo_root/Dockerfile"
+grep -Fq 'Skipping Seed Hunter custom nodes on Ampere.' "$repo_root/bake_custom_nodes.sh"
 
 echo "SageAttention 2 Ampere/Ada and SageAttention 3 Blackwell matrix tests passed."

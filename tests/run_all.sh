@@ -20,6 +20,7 @@ bash "$repo_root/tests/sage_matrix_test.sh"
 bash "$repo_root/tests/safetensors_validator_test.sh"
 bash "$repo_root/tests/resumable_download_test.sh"
 bash "$repo_root/tests/download_priority_test.sh"
+bash "$repo_root/tests/custom_node_sync_test.sh"
 bash "$repo_root/tests/bundle_install_test.sh"
 "$python_bin" "$repo_root/tests/validate_bundle.py" --root "$repo_root"
 

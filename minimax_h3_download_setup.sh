@@ -2,20 +2,45 @@
 set -euo pipefail
 
 COMFY="${COMFY:-/workspace/runpod-slim/ComfyUI}"
+COMFY_BAKED="${MINIMAX_H3_COMFY_BAKED:-/opt/comfyui-baked}"
 VENV="${COMFY_VENV:-$COMFY/.venv-cu130}"
 DOWNLOAD_JOBS="${MINIMAX_H3_DOWNLOAD_JOBS:-2}"
 STATUS_FILE="${MINIMAX_H3_STATUS_FILE:-/workspace/runpod-slim/minimax-h3-download.status}"
 BUNDLE_ROOT="${MINIMAX_H3_BUNDLE_ROOT:-/opt/minimax-h3-bundle}"
 MODEL_REVISION="eb8a16107c595128b3a578f82d2ce2f75920c355"
-EXPECTED_CORE_COMMIT="${COMFYUI_H3_COMMIT:-dec5d9450a5290bcf63430409ea41018e67f41c3}"
+EXPECTED_CORE_COMMIT="${COMFYUI_H3_COMMIT:-12d5279438bfefc058a269eae805ceab6047777f}"
 PIXAROMA_COMMIT="${PIXAROMA_H3_COMMIT:-433bbedc7f43d717fcb9e8e9aa9cbd26b0439226}"
+GPU_FAMILY="${MINIMAX_H3_GPU_FAMILY:-ada}"
+NODE_LOCK="${MINIMAX_H3_NODE_LOCK:-/opt/minimax-h3/seed-hunter-node-lock.tsv}"
 CURL_BIN="${CURL_BIN:-curl}"
 BOOTSTRAP_PYTHON="${MINIMAX_H3_PYTHON_BIN:-python3}"
+SEED_HUNTER_DOWNLOADS=()
 
 if ! [[ "$DOWNLOAD_JOBS" =~ ^[1-4]$ ]]; then
   echo "WARNING: MINIMAX_H3_DOWNLOAD_JOBS must be from 1 to 4; using 2."
   DOWNLOAD_JOBS=2
 fi
+
+seed_hunter_enabled() {
+  case "$GPU_FAMILY" in
+    ada|blackwell) return 0 ;;
+    ampere) return 1 ;;
+    *)
+      echo "FATAL: Unsupported MiniMax H3 GPU family: $GPU_FAMILY" >&2
+      return 2
+      ;;
+  esac
+}
+
+asset_applies_to_family() {
+  local families="${1:-all}"
+  [ -z "$families" ] && families="all"
+  [ "$families" = "all" ] && return 0
+  case ",$families," in
+    *",$GPU_FAMILY,"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 notify_ntfy() {
   local title="$1"
@@ -176,9 +201,9 @@ ensure_comfyui() {
   # first breaks that path, so copy the image-baked source only when main.py is absent.
   if [ ! -f "$COMFY/main.py" ]; then
     echo "ComfyUI not found in /workspace yet. Copying the pinned H3 build..."
-    test -f /opt/comfyui-baked/main.py
+    test -f "$COMFY_BAKED/main.py"
     mkdir -p /workspace/runpod-slim
-    cp -r /opt/comfyui-baked "$COMFY"
+    cp -r "$COMFY_BAKED" "$COMFY"
   fi
 
   if [ ! -f "$COMFY/comfy_extras/nodes_minimax_h3.py" ] \
@@ -215,6 +240,8 @@ ensure_comfyui() {
     "$COMFY/models/diffusion_models/h3" \
     "$COMFY/models/text_encoders" \
     "$COMFY/models/vae" \
+    "$COMFY/models/vae_approx" \
+    "$COMFY/models/latent_upscale_models" \
     "$COMFY/user/default/workflows" \
     "$COMFY/input"
 }
@@ -222,6 +249,7 @@ ensure_comfyui() {
 ensure_pixaroma_h3() {
   local target="$COMFY/custom_nodes/ComfyUI-Pixaroma"
   local staging="${target}.minimax-h3-part"
+  local baked="$COMFY_BAKED/custom_nodes/ComfyUI-Pixaroma"
   local backup
 
   if [ -f "$target/nodes/node_h3_audio_sync.py" ] \
@@ -236,18 +264,54 @@ ensure_pixaroma_h3() {
     echo "Preserved incompatible Pixaroma installation at: $backup"
   fi
 
-  echo "Installing pinned ComfyUI-Pixaroma H3 nodes: $PIXAROMA_COMMIT"
+  echo "Installing baked ComfyUI-Pixaroma H3 nodes: $PIXAROMA_COMMIT"
+  test -f "$baked/nodes/node_h3_audio_sync.py"
   rm -rf "$staging"
-  git init "$staging"
-  git -C "$staging" remote add origin https://gitlab.com/pixaroma/ComfyUI-Pixaroma.git
-  git -C "$staging" fetch --depth 1 origin "$PIXAROMA_COMMIT"
-  git -C "$staging" checkout --detach FETCH_HEAD
+  cp -r "$baked" "$staging"
   test -f "$staging/nodes/node_h3_audio_sync.py"
   grep -q 'PixaromaH3AudioSync' "$staging/nodes/node_h3_audio_sync.py"
-  rm -rf "$staging/.git"
   printf '%s\n' "$PIXAROMA_COMMIT" > "$staging/.minimax-h3-managed-commit"
   mv "$staging" "$target"
   echo "Installed NODE  ComfyUI-Pixaroma MiniMax H3 support"
+}
+
+ensure_seed_hunter_nodes() {
+  local folder repository commit baked target marker backup
+
+  if ! seed_hunter_enabled; then
+    echo "Skipping Seed Hunter nodes on Ampere."
+    return 0
+  fi
+
+  test -s "$NODE_LOCK"
+  while IFS=$'\t' read -r folder repository commit; do
+    [ -n "$folder" ] || continue
+    [[ "$folder" = \#* ]] && continue
+    [ -n "$repository" ] && [ -n "$commit" ]
+    baked="$COMFY_BAKED/custom_nodes/$folder"
+    target="$COMFY/custom_nodes/$folder"
+    marker="$target/.minimax-h3-managed-commit"
+    test -d "$baked"
+    test "$(tr -d '[:space:]' < "$baked/.minimax-h3-managed-commit")" = "$commit"
+
+    if [ -f "$marker" ] \
+      && [ "$(tr -d '[:space:]' < "$marker")" = "$commit" ]; then
+      if [ "$folder" != "ComfyUI-VFI" ] \
+        || { [ -f "$target/rife/train_log/flownet.pkl" ] \
+          && [ "$(file_size "$target/rife/train_log/flownet.pkl")" = "24636301" ]; }; then
+        echo "Ready NODE      $folder ($commit)"
+        continue
+      fi
+    fi
+
+    if [ -e "$target" ]; then
+      backup="${target}.pre-minimax-h3-$(date +%Y%m%dT%H%M%S)"
+      mv "$target" "$backup"
+      echo "Preserved unmanaged or incompatible node at: $backup"
+    fi
+    cp -r "$baked" "$target"
+    echo "Installed NODE  $folder ($commit)"
+  done < "$NODE_LOCK"
 }
 
 resolve_script_base_url() {
@@ -265,7 +329,7 @@ resolve_script_base_url() {
 install_bundle() {
   local manifest="$BUNDLE_ROOT/asset-manifest.tsv"
   local temp_manifest="/tmp/minimax-h3-asset-manifest.tsv"
-  local kind repo_path install_path expected_sha source dest part actual_sha refresh
+  local kind repo_path install_path expected_sha families source dest part actual_sha refresh backup
 
   if [ ! -s "$manifest" ]; then
     if [ -z "$SCRIPT_BASE_URL" ]; then
@@ -278,11 +342,21 @@ install_bundle() {
     manifest="$temp_manifest"
   fi
 
-  while IFS=$'\t' read -r kind repo_path install_path expected_sha; do
+  while IFS=$'\t' read -r kind repo_path install_path expected_sha families; do
     [ -n "$kind" ] || continue
     [[ "$kind" = \#* ]] && continue
     [ -n "$repo_path" ] && [ -n "$install_path" ] && [ -n "$expected_sha" ]
     dest="$COMFY/$install_path"
+    if ! asset_applies_to_family "${families:-all}"; then
+      if [ -f "$dest" ]; then
+        backup="${dest}.unsupported-on-${GPU_FAMILY}-$(date +%Y%m%dT%H%M%S)"
+        mkdir -p "$(dirname "$backup")"
+        mv "$dest" "$backup"
+        echo "Preserved family-incompatible workflow at: $backup"
+      fi
+      printf 'Skipped %-8s %s on %s\n' "$kind" "$install_path" "$GPU_FAMILY"
+      continue
+    fi
     part="${dest}.part"
     refresh=0
     [ "$kind" = "workflow" ] && refresh="${MINIMAX_H3_REFRESH_WORKFLOWS:-0}"
@@ -326,15 +400,23 @@ install_bundle() {
 
 validate_installed_workflows() {
   local workflow_root="$COMFY/user/default/workflows/MiniMax H3"
-  python - "$workflow_root" <<'PY_WORKFLOWS'
+  local expected_count=11
+  local include_seed_hunter=0
+  if seed_hunter_enabled; then
+    expected_count=12
+    include_seed_hunter=1
+  fi
+  python - "$workflow_root" "$expected_count" "$include_seed_hunter" <<'PY_WORKFLOWS'
 import json
 import pathlib
 import sys
 
 root = pathlib.Path(sys.argv[1])
+expected_count = int(sys.argv[2])
+include_seed_hunter = sys.argv[3] == "1"
 files = sorted(root.rglob("*.json"))
-if len(files) != 10:
-    raise SystemExit(f"expected 10 MiniMax H3 workflows, found {len(files)}")
+if len(files) != expected_count:
+    raise SystemExit(f"expected {expected_count} MiniMax H3 workflows, found {len(files)}")
 
 required_models = {
     "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
@@ -343,6 +425,12 @@ required_models = {
     "minimax_h3_audio_vae_fp32.safetensors",
     "minimax_h3_video_vae_fp16.safetensors",
 }
+if include_seed_hunter:
+    required_models.update({
+        "minimax_h3_video_vae_int8_convrot.safetensors",
+        "minimax_h3_latent_upscaler_3d_bf16.safetensors",
+        "taeh3.safetensors",
+    })
 seen_models = set()
 seen_nodes = set()
 
@@ -356,11 +444,16 @@ def strings(value):
         for item in value.values():
             yield from strings(item)
 
+def nodes(data):
+    yield from data.get("nodes", [])
+    for subgraph in data.get("definitions", {}).get("subgraphs", []):
+        yield from subgraph.get("nodes", [])
+
 for path in files:
     data = json.loads(path.read_text(encoding="utf-8-sig"))
     if not isinstance(data.get("nodes"), list):
         raise SystemExit(f"workflow has no node list: {path}")
-    for node in data["nodes"]:
+    for node in nodes(data):
         seen_nodes.add(node.get("type"))
         for value in strings(node.get("widgets_values")):
             name = value.replace("\\", "/").rsplit("/", 1)[-1]
@@ -379,6 +472,7 @@ PY_WORKFLOWS
 
 init_model_manifest() {
   local base="https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/$MODEL_REVISION"
+  SEED_HUNTER_DOWNLOADS=()
   DOWNLOAD_KINDS=("MODEL" "MODEL" "TE" "VAE" "VAE")
   DOWNLOAD_URLS=(
     "$base/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors"
@@ -408,6 +502,27 @@ init_model_manifest() {
     "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
     "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
   )
+
+  if seed_hunter_enabled; then
+    SEED_HUNTER_DOWNLOADS=(5 6 7)
+    DOWNLOAD_KINDS+=("VAE" "UPSCALE" "VAE-APPROX")
+    DOWNLOAD_URLS+=(
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/resolve/f4cac997f880e93cf6940af61ee8d58ef31ff7f3/minimax_h3_video_vae_int8_convrot.safetensors"
+      "https://huggingface.co/LBH-123-AI/Minimax_h3_latent_Upscaler/resolve/13ccf95d85d120bdbc92c05b1247a6e147bf54bf/minimax_h3_latent_upscaler_3d_bf16.safetensors"
+      "https://huggingface.co/Kijai/MiniMax-H3-TAE/resolve/a213ac8bf2f148b4f32372279a7f207846978900/vae_approx/taeh3.safetensors"
+    )
+    DOWNLOAD_OUTPUTS+=(
+      "$COMFY/models/vae/minimax_h3_video_vae_int8_convrot.safetensors"
+      "$COMFY/models/latent_upscale_models/minimax_h3_latent_upscaler_3d_bf16.safetensors"
+      "$COMFY/models/vae_approx/taeh3.safetensors"
+    )
+    DOWNLOAD_SIZES+=("3171670912" "690592992" "9791388")
+    DOWNLOAD_SHA256+=(
+      "9bb2d96f218c76babd85e0611b85ca8fb330a90546c01a0005e8a58a59593410"
+      "4f57821f5837f32f7142b67d815606dbd7550f194e5c769f7d6c3f83b146a5e6"
+      "f0f60fa072089997f817402098c2fd90777cb2660dd79cf5df42fc1e3e08e527"
+    )
+  fi
 }
 
 select_model_priority() {
@@ -766,8 +881,8 @@ validate_model_group() {
 }
 
 validate_all_models() {
-  local -a all_downloads=(0 1 2 3 4)
-  validate_model_group "both H3 diffusion models and all three shared model assets" \
+  local -a all_downloads=("${!DOWNLOAD_OUTPUTS[@]}")
+  validate_model_group "both H3 diffusion models and all enabled shared assets" \
     "${all_downloads[@]}"
 }
 
@@ -812,34 +927,38 @@ start_ready_notification() {
 }
 
 start_deferred_model_download() {
-  local index="$1"
-  local deferred_name="$2"
-  local output="${DOWNLOAD_OUTPUTS[$index]}"
-  local filename="$(basename "$output")"
+  local deferred_name="$1"
+  shift
+  local -a indices=("$@")
+  local filename="$(basename "${DOWNLOAD_OUTPUTS[${indices[0]}]}")"
+  local background_label="$deferred_name"
+  if [ "${#SEED_HUNTER_DOWNLOADS[@]}" -gt 0 ]; then
+    background_label="$deferred_name plus Seed Hunter support assets"
+  fi
 
   write_status "background-downloading" \
-    "ComfyUI is starting with $FIRST_MODEL_NAME ready; downloading $deferred_name ($filename) in the background."
+    "ComfyUI is starting with $FIRST_MODEL_NAME ready; downloading $background_label in the background."
   (
     # The foreground setup EXIT trap must not mark a later background failure as
     # a failed cold start. Ignore HUP so replacing the wrapper with /start.sh does
     # not interrupt the resumable transfer.
     trap - EXIT
     trap '' HUP
-    if download_group "MINIMAX-H3-BACKGROUND" "$index" \
-      && validate_model_group "$deferred_name diffusion model" "$index"; then
+    if download_group "MINIMAX-H3-BACKGROUND" "${indices[@]}" \
+      && validate_model_group "$background_label" "${indices[@]}"; then
       write_status "ready" \
-        "Both MiniMax H3 diffusion models and all shared assets passed validation."
+        "Both MiniMax H3 diffusion models and all enabled support assets passed validation."
       notify_ntfy \
         "MiniMax H3 background model ready" "high" "white_check_mark" \
-        "$deferred_name finished downloading and is ready in ComfyUI. Refresh the browser model list if it is already open."
-      echo "=== Background $deferred_name download is ready: $filename ==="
+        "$background_label finished downloading and is ready in ComfyUI. Refresh the browser model list if it is already open."
+      echo "=== Background $background_label download is ready; first file: $filename ==="
     else
       write_status "background-failed" \
-        "$deferred_name background download failed; its partial file was preserved for the next restart."
+        "$background_label download failed; partial files were preserved for the next restart."
       notify_ntfy \
         "MiniMax H3 background download failed" "urgent" "warning" \
-        "$deferred_name failed to download. The ready $FIRST_MODEL_NAME workflow remains usable and the partial download will resume on restart."
-      echo "ERROR: Background $deferred_name download failed; partial data was preserved." >&2
+        "$background_label failed to download. The ready $FIRST_MODEL_NAME workflows remain usable and partial downloads will resume on restart."
+      echo "ERROR: Background $background_label download failed; partial data was preserved." >&2
       exit 1
     fi
   ) &
@@ -848,6 +967,7 @@ start_deferred_model_download() {
 
 main() {
   local -a foreground_downloads
+  local -a background_downloads
   local setup_complete=0
   local readiness_detail
 
@@ -858,6 +978,7 @@ main() {
   preflight_cuda
   ensure_comfyui
   ensure_pixaroma_h3
+  ensure_seed_hunter_nodes
   python -m py_compile \
     "$COMFY/comfy_extras/nodes_minimax_h3.py" \
     "$COMFY/comfy/text_encoders/minimax.py" \
@@ -870,6 +991,7 @@ main() {
   init_model_manifest
   select_model_priority
   foreground_downloads=("$FIRST_MODEL_INDEX" 2 3 4)
+  background_downloads=("$DEFERRED_MODEL_INDEX" "${SEED_HUNTER_DOWNLOADS[@]}")
   prepare_local_models
   preflight_remote_models
   preflight_disk_space
@@ -882,6 +1004,9 @@ main() {
 
   patch_start_credentials
   readiness_detail="ComfyUI started with $FIRST_MODEL_NAME ready. $DEFERRED_MODEL_NAME is downloading in the background; refresh the model list after its completion notification."
+  if [ "${#SEED_HUNTER_DOWNLOADS[@]}" -gt 0 ]; then
+    readiness_detail="ComfyUI started with $FIRST_MODEL_NAME ready. $DEFERRED_MODEL_NAME and the Ada/Blackwell Seed Hunter support models are downloading in the background."
+  fi
   start_ready_notification "$readiness_detail"
   write_status "foreground-ready" \
     "$FIRST_MODEL_NAME and all shared assets are ready; ComfyUI is starting and $DEFERRED_MODEL_NAME will download in the background."
@@ -891,7 +1016,7 @@ main() {
   notify_ntfy \
     "MiniMax H3 foreground models ready" "high" "white_check_mark" \
     "$FIRST_MODEL_NAME, the Qwen text encoder, and audio/video VAEs are ready. ComfyUI is starting while $DEFERRED_MODEL_NAME downloads in the background."
-  start_deferred_model_download "$DEFERRED_MODEL_INDEX" "$DEFERRED_MODEL_NAME"
+  start_deferred_model_download "$DEFERRED_MODEL_NAME" "${background_downloads[@]}"
   echo "=== MiniMax H3 $FIRST_MODEL_NAME workflows are ready ==="
   echo "Returning to wrapper. SageAttention bootstrap will run next."
 }

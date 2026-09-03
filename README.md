@@ -1,17 +1,22 @@
 # RunPod ComfyUI MiniMax H3 workflow template
 
-Pinned RunPod image and cold-start setup for the ten MiniMax H3 workflows in
-the Pixaroma EP29 workflow folder. One H3 diffusion family is ready when
-ComfyUI starts and the other downloads in the background:
+Pinned RunPod image and cold-start setup for eleven MiniMax H3 workflows on
+Ampere and twelve on Ada/Blackwell. The common set contains the ten workflows
+from the Pixaroma EP29 folder plus a five-seed REF2VA seed hunter. Ada and
+Blackwell also receive the MiniMax Seed Hunter v1.2.1 workflow with latent
+upscaling and seamless continuation. REF2VA is ready when ComfyUI starts and
+FL2VA downloads in the background by default:
 
 - `minimax_h3_fl2va_pruned_int8_convrot.safetensors`
 - `minimax_h3_ref2va_pruned_int8_convrot.safetensors`
 
 The shared Qwen3-VL text encoder and MiniMax audio/video VAEs are downloaded in
-the blocking phase with the selected first diffusion model. All five files are
-pinned to Hugging Face revision
+the blocking phase with the selected first diffusion model. These five base
+files are pinned to Hugging Face revision
 `eb8a16107c595128b3a578f82d2ce2f75920c355` and total 63,440,965,087 bytes
-(about 59.1 GiB).
+(about 59.1 GiB). On Ada and Blackwell, three additional Seed Hunter model files
+totaling 3,872,055,292 bytes download in the background alongside FL2VA. The
+24,636,301-byte RIFE interpolation model is verified and baked into the image.
 
 ## RunPod template settings
 
@@ -19,7 +24,8 @@ Publish this repository, let GitHub Actions build the images, and select the tag
 matching the RunPod GPU:
 
 - Ampere compute capability 8.6 (A40, RTX A6000, RTX 30):
-  `ghcr.io/nightfall93/runpod-comfyui-minimax-h3:cuda13-ampere` — SageAttention 2.2.0
+  `ghcr.io/nightfall93/runpod-comfyui-minimax-h3:cuda13-ampere` — SageAttention
+  2.2.0; the v1.2.1 Seed Hunter workflow is intentionally excluded
 - Ada compute capability 8.9 (L40/L40S, RTX 40):
   `ghcr.io/nightfall93/runpod-comfyui-minimax-h3:cuda13-ada` — SageAttention 2.2.0
 - Blackwell compute capability 12.0 (RTX 50 and RTX PRO Blackwell):
@@ -51,7 +57,7 @@ Supported environment variables:
 - `MINIMAX_H3_DISK_RESERVE_GB` (default `10`)
 - `MINIMAX_H3_MIN_DOWNLOAD_MIBPS` (default `5` before slow-link reconnects)
 - `MINIMAX_H3_RECONNECT_LIMIT` (default `3` per file)
-- `MINIMAX_H3_VERIFY_SHA256=1` (optional full 59.1 GiB hash pass; exact size and
+- `MINIMAX_H3_VERIFY_SHA256=1` (optional full hash pass; exact size and
   safetensors headers are always validated)
 - `MINIMAX_H3_REFRESH_WORKFLOWS=1` (replace installed workflows from the managed
   bundle for one startup)
@@ -64,21 +70,26 @@ Supported environment variables:
 
 - RunPod `cuda13.0` base image by immutable digest
 - PyTorch CUDA 13.0 and a host-driver gate requiring major version 580+
-- ComfyUI `dec5d9450a5290bcf63430409ea41018e67f41c3` (v0.30.2), which contains
+- ComfyUI `12d5279438bfefc058a269eae805ceab6047777f` (v0.34.0), which contains
   native MiniMax H3 support
 - ComfyUI-Pixaroma `433bbedc7f43d717fcb9e8e9aa9cbd26b0439226`, including the H3 audio-sync node
 - Official SageAttention source `d1a57a546c3d395b1ffcbeecc66d81db76f3b4b5`:
   SageAttention 2.2.0 is compiled separately for Ampere 8.6 and Ada 8.9;
   SageAttention 3 is compiled only for Blackwell 12.0 using pinned CUTLASS
   `dcf215af68a2d08d305076c152a06f201728cd53`
-- The ten EP29 workflow JSON files and every non-empty sample input they reference
+- The ten EP29 workflow JSON files and five-seed REF2VA seed hunter on all GPU
+  families
+- The normalized v1.2.1 Seed Hunter workflow and its eleven pinned custom-node
+  repositories on Ada and Blackwell only; see `seed-hunter-node-lock.tsv`
+- RIFE v4.26 `flownet.pkl`, verified during the Ada/Blackwell image build
 
 The original EP29 prompt-formula notes are retained under `resources/` for the
 repository owner; they are reference material and are not copied into ComfyUI.
 The workflow copies use Linux-portable `h3/...` model paths for RunPod.
 
-Models are deliberately not included in the image. They download to Container
-Disk on first boot and valid completed files are skipped on later boots.
+Large models are deliberately not included in the image. They download to
+Container Disk on first boot and valid completed files are skipped on later
+boots. The small RIFE interpolation model is the only baked model asset.
 
 ## Cold-start safety and recovery
 
@@ -107,9 +118,31 @@ Startup state is written atomically to:
 /workspace/runpod-slim/minimax-h3-download.status
 ```
 
-ComfyUI starts when the selected diffusion model, text encoder, both VAEs, and
-all ten workflows have passed validation. Background completion or failure is
-reported in the container log, optional ntfy notifications, and the status file.
+ComfyUI starts when REF2VA, the text encoder, both base VAEs, and the applicable
+workflow bundle have passed validation: eleven workflows on Ampere or twelve on
+Ada/Blackwell. FL2VA and the three additional Seed Hunter models then download
+in the background. Completion or failure is reported in the container log,
+optional ntfy notifications, and the status file.
+
+## REF2VA seed hunter
+
+`Minimax H3 - Seed Hunter - Five Seeds` shares one prompt, reference-conditioning
+node, diffusion loader, text encoder, and both VAE loaders across five KSamplers.
+All five samplers use identical generation settings and independently randomize
+their seeds after each queued run. An execution barrier completes every diffusion
+pass before any VAE decode begins, avoiding repeated UNET/VAE swapping. The five
+MP4 branches use the prefixes `SeedHunter_S01` through `SeedHunter_S05` so each
+result maps directly to its numbered sampler.
+
+## Seed Hunter v1.2.1 (Ada and Blackwell)
+
+The Civitai Seed Hunter workflow is installed only on Ada and Blackwell images.
+Its creator-local audio/video selections are cleared, diffusion-model references
+use Linux-portable `h3/...` paths, and the pinned INT8 video VAE, latent upscaler,
+and TaeH3 preview model download in the background with FL2VA. SolAttn remains
+bypassed in the managed workflow until the custom kernel is smoke-tested on a
+real Ada and Blackwell pod. The existing global architecture-specific
+SageAttention backend remains enabled.
 
 ## Local validation
 
@@ -124,5 +157,6 @@ build matrix and fatal mismatch paths, valid and invalid
 safetensors headers, foreground/background model-priority selection, a mocked
 partial-download resume, manifest installation and
 customization preservation, manifest hashes, JSON parsing, Linux model paths,
-exact workflow count, model coverage, required H3 node types, and referenced
-sample inputs. The same suite runs before every image build in GitHub Actions.
+per-family workflow counts, recursive subgraph inspection, model coverage,
+custom-node lock coverage, required H3 node types, and referenced sample inputs.
+The same suite runs before every image build in GitHub Actions.

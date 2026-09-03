@@ -71,7 +71,7 @@ ARG SAGE_ATTENTION_MAJOR=2
 ARG SAGE_ATTENTION_VERSION=2.2.0
 ARG COMFY_SAGE_ATTENTION3=0
 ARG MINIMAX_H3_GPU_FAMILY=ada
-ARG COMFYUI_COMMIT=dec5d9450a5290bcf63430409ea41018e67f41c3
+ARG COMFYUI_COMMIT=12d5279438bfefc058a269eae805ceab6047777f
 ARG PIXAROMA_COMMIT=433bbedc7f43d717fcb9e8e9aa9cbd26b0439226
 
 ENV COMFY_VENV=/workspace/runpod-slim/ComfyUI/.venv-cu130 \
@@ -95,11 +95,16 @@ RUN python3 -m pip install --no-deps /tmp/sage-wheels/*.whl \
 
 COPY bake_comfyui_core.sh /tmp/bake_comfyui_core.sh
 COPY bake_custom_nodes.sh /tmp/bake_custom_nodes.sh
+COPY seed-hunter-node-lock.tsv /opt/minimax-h3/seed-hunter-node-lock.tsv
 COPY patches/comfyui-sage3-global.patch /tmp/comfyui-sage3-global.patch
 RUN COMFYUI_COMMIT="$COMFYUI_H3_COMMIT" \
       COMFYUI_SAGE3_PATCH=/tmp/comfyui-sage3-global.patch \
       bash /tmp/bake_comfyui_core.sh \
-    && PIXAROMA_COMMIT="$PIXAROMA_H3_COMMIT" bash /tmp/bake_custom_nodes.sh \
+    && PIXAROMA_COMMIT="$PIXAROMA_H3_COMMIT" \
+      SEED_HUNTER_NODE_LOCK=/opt/minimax-h3/seed-hunter-node-lock.tsv \
+      bash /tmp/bake_custom_nodes.sh \
+    && cd /opt/comfyui-baked \
+    && python3 main.py --cpu --quick-test-for-ci \
     && rm -f /tmp/bake_comfyui_core.sh /tmp/bake_custom_nodes.sh \
       /tmp/comfyui-sage3-global.patch
 

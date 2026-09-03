@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-COMFYUI_COMMIT="${COMFYUI_COMMIT:-dec5d9450a5290bcf63430409ea41018e67f41c3}"
+COMFYUI_COMMIT="${COMFYUI_COMMIT:-12d5279438bfefc058a269eae805ceab6047777f}"
 COMFY_BAKED="/opt/comfyui-baked"
 STAGING="/tmp/ComfyUI-h3.bake"
 CONSTRAINTS="/opt/comfyui-runtime-constraints.txt"

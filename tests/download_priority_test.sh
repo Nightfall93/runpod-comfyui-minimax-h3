@@ -9,6 +9,20 @@ export MINIMAX_H3_SETUP_LIB_ONLY=1
 export MINIMAX_H3_STATUS_FILE="$tmp/minimax-h3-download.status"
 source "$repo_root/minimax_h3_download_setup.sh"
 
+GPU_FAMILY=ada
+init_model_manifest
+[ "${#DOWNLOAD_OUTPUTS[@]}" = "8" ]
+[ "${SEED_HUNTER_DOWNLOADS[*]}" = "5 6 7" ]
+[[ "${DOWNLOAD_OUTPUTS[5]}" = */models/vae/minimax_h3_video_vae_int8_convrot.safetensors ]]
+[[ "${DOWNLOAD_OUTPUTS[6]}" = */models/latent_upscale_models/minimax_h3_latent_upscaler_3d_bf16.safetensors ]]
+[[ "${DOWNLOAD_OUTPUTS[7]}" = */models/vae_approx/taeh3.safetensors ]]
+
+GPU_FAMILY=ampere
+init_model_manifest
+[ "${#DOWNLOAD_OUTPUTS[@]}" = "5" ]
+[ "${#SEED_HUNTER_DOWNLOADS[@]}" = "0" ]
+GPU_FAMILY=ada
+
 MINIMAX_H3_FIRST_MODEL=ref2va select_model_priority >/dev/null
 [ "$FIRST_MODEL_INDEX" = "1" ]
 [ "$FIRST_MODEL_NAME" = "REF2VA" ]
@@ -54,7 +68,7 @@ notify_ntfy() {
   return 0
 }
 
-start_deferred_model_download 0 "FL2VA" >/dev/null
+start_deferred_model_download "FL2VA" 0 >/dev/null
 background_pid=$!
 wait "$background_pid"
 grep -q '^state=ready$' "$MINIMAX_H3_STATUS_FILE"
