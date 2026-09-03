@@ -10,6 +10,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: minimax-h3-images-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   # OCI repository names must be lowercase; GitHub preserves owner casing.
@@ -22,11 +26,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - family: ampere
-            cuda_arch: "8.6"
-            sage_major: "2"
-            sage_version: "2.2.0"
-            comfy_sage3: "0"
           - family: ada
             cuda_arch: "8.9"
             sage_major: "2"

@@ -101,5 +101,12 @@ grep -Fq 'COPY seed-hunter-node-lock.tsv /opt/minimax-h3/seed-hunter-node-lock.t
   "$repo_root/Dockerfile"
 grep -Fq 'python3 main.py --cpu --quick-test-for-ci' "$repo_root/Dockerfile"
 grep -Fq 'Skipping Seed Hunter custom nodes on Ampere.' "$repo_root/bake_custom_nodes.sh"
+if grep -Fq -- '- family: ampere' "$repo_root/.github/workflows/docker-publish.yml"; then
+  echo "Ampere must not be present in the publish matrix." >&2
+  exit 1
+fi
+grep -Fq -- '- family: ada' "$repo_root/.github/workflows/docker-publish.yml"
+grep -Fq -- '- family: blackwell' "$repo_root/.github/workflows/docker-publish.yml"
+grep -Fq 'cancel-in-progress: true' "$repo_root/.github/workflows/docker-publish.yml"
 
 echo "SageAttention 2 Ampere/Ada and SageAttention 3 Blackwell matrix tests passed."

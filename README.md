@@ -1,11 +1,10 @@
 # RunPod ComfyUI MiniMax H3 workflow template
 
-Pinned RunPod image and cold-start setup for eleven MiniMax H3 workflows on
-Ampere and twelve on Ada/Blackwell. The common set contains the ten workflows
-from the Pixaroma EP29 folder plus a five-seed REF2VA seed hunter. Ada and
-Blackwell also receive the MiniMax Seed Hunter v1.2.1 workflow with latent
-upscaling and seamless continuation. REF2VA is ready when ComfyUI starts and
-FL2VA downloads in the background by default:
+Pinned RunPod image and cold-start setup for twelve MiniMax H3 workflows on Ada
+and Blackwell. The bundle contains the ten workflows from the Pixaroma EP29
+folder, a five-seed REF2VA seed hunter, and the MiniMax Seed Hunter v1.2.1
+workflow with latent upscaling and seamless continuation. REF2VA is ready when
+ComfyUI starts and FL2VA downloads in the background by default:
 
 - `minimax_h3_fl2va_pruned_int8_convrot.safetensors`
 - `minimax_h3_ref2va_pruned_int8_convrot.safetensors`
@@ -14,7 +13,7 @@ The shared Qwen3-VL text encoder and MiniMax audio/video VAEs are downloaded in
 the blocking phase with the selected first diffusion model. These five base
 files are pinned to Hugging Face revision
 `eb8a16107c595128b3a578f82d2ce2f75920c355` and total 63,440,965,087 bytes
-(about 59.1 GiB). On Ada and Blackwell, three additional Seed Hunter model files
+(about 59.1 GiB). Three additional Seed Hunter model files
 totaling 3,872,055,292 bytes download in the background alongside FL2VA. The
 24,636,301-byte RIFE interpolation model is verified and baked into the image.
 
@@ -23,9 +22,6 @@ totaling 3,872,055,292 bytes download in the background alongside FL2VA. The
 Publish this repository, let GitHub Actions build the images, and select the tag
 matching the RunPod GPU:
 
-- Ampere compute capability 8.6 (A40, RTX A6000, RTX 30):
-  `ghcr.io/nightfall93/runpod-comfyui-minimax-h3:cuda13-ampere` — SageAttention
-  2.2.0; the v1.2.1 Seed Hunter workflow is intentionally excluded
 - Ada compute capability 8.9 (L40/L40S, RTX 40):
   `ghcr.io/nightfall93/runpod-comfyui-minimax-h3:cuda13-ada` — SageAttention 2.2.0
 - Blackwell compute capability 12.0 (RTX 50 and RTX PRO Blackwell):
@@ -74,14 +70,14 @@ Supported environment variables:
   native MiniMax H3 support
 - ComfyUI-Pixaroma `433bbedc7f43d717fcb9e8e9aa9cbd26b0439226`, including the H3 audio-sync node
 - Official SageAttention source `d1a57a546c3d395b1ffcbeecc66d81db76f3b4b5`:
-  SageAttention 2.2.0 is compiled separately for Ampere 8.6 and Ada 8.9;
-  SageAttention 3 is compiled only for Blackwell 12.0 using pinned CUTLASS
+  SageAttention 2.2.0 is compiled for Ada 8.9; SageAttention 3 is compiled only
+  for Blackwell 12.0 using pinned CUTLASS
   `dcf215af68a2d08d305076c152a06f201728cd53`
-- The ten EP29 workflow JSON files and five-seed REF2VA seed hunter on all GPU
-  families
-- The normalized v1.2.1 Seed Hunter workflow and its eleven pinned custom-node
-  repositories on Ada and Blackwell only; see `seed-hunter-node-lock.tsv`
-- RIFE v4.26 `flownet.pkl`, verified during the Ada/Blackwell image build
+- The ten EP29 workflow JSON files, five-seed REF2VA seed hunter, and normalized
+  v1.2.1 Seed Hunter workflow
+- Eleven pinned Seed Hunter custom-node repositories; see
+  `seed-hunter-node-lock.tsv`
+- RIFE v4.26 `flownet.pkl`, verified during the image build
 
 The original EP29 prompt-formula notes are retained under `resources/` for the
 repository owner; they are reference material and are not copied into ComfyUI.
@@ -100,8 +96,8 @@ confirm enough disk remains plus the configured reserve.
 
 Before ComfyUI starts, the Sage bootstrap also checks the image's required Sage
 major and package version, imports the architecture-specific extension, and runs
-a small CUDA attention kernel. Ampere/Ada start with ComfyUI's Sage 2 flag;
-Blackwell starts through ComfyUI's native `sage3` backend. A wrong package,
+a small CUDA attention kernel. Ada starts with ComfyUI's Sage 2 flag; Blackwell
+starts through ComfyUI's native `sage3` backend. A wrong package,
 compute capability, failed import, or failed kernel smoke test stops startup.
 
 Downloads use `.part` files, resume across restarts, run two at a time by default,
@@ -119,8 +115,7 @@ Startup state is written atomically to:
 ```
 
 ComfyUI starts when REF2VA, the text encoder, both base VAEs, and the applicable
-workflow bundle have passed validation: eleven workflows on Ampere or twelve on
-Ada/Blackwell. FL2VA and the three additional Seed Hunter models then download
+workflow bundle have passed validation. FL2VA and the three additional Seed Hunter models then download
 in the background. Completion or failure is reported in the container log,
 optional ntfy notifications, and the status file.
 
@@ -134,10 +129,10 @@ pass before any VAE decode begins, avoiding repeated UNET/VAE swapping. The five
 MP4 branches use the prefixes `SeedHunter_S01` through `SeedHunter_S05` so each
 result maps directly to its numbered sampler.
 
-## Seed Hunter v1.2.1 (Ada and Blackwell)
+## Seed Hunter v1.2.1
 
-The Civitai Seed Hunter workflow is installed only on Ada and Blackwell images.
-Its creator-local audio/video selections are cleared, diffusion-model references
+The Civitai Seed Hunter workflow is included in both supported images. Its
+creator-local audio/video selections are cleared, diffusion-model references
 use Linux-portable `h3/...` paths, and the pinned INT8 video VAE, latent upscaler,
 and TaeH3 preview model download in the background with FL2VA. SolAttn remains
 bypassed in the managed workflow until the custom kernel is smoke-tested on a
@@ -157,6 +152,6 @@ build matrix and fatal mismatch paths, valid and invalid
 safetensors headers, foreground/background model-priority selection, a mocked
 partial-download resume, manifest installation and
 customization preservation, manifest hashes, JSON parsing, Linux model paths,
-per-family workflow counts, recursive subgraph inspection, model coverage,
+workflow-family scoping, recursive subgraph inspection, model coverage,
 custom-node lock coverage, required H3 node types, and referenced sample inputs.
 The same suite runs before every image build in GitHub Actions.
