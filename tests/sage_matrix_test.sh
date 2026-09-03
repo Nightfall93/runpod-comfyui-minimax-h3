@@ -99,6 +99,8 @@ grep -Fq 'ARG COMFYUI_COMMIT=12d5279438bfefc058a269eae805ceab6047777f' \
   "$repo_root/Dockerfile"
 grep -Fq 'COPY seed-hunter-node-lock.tsv /opt/minimax-h3/seed-hunter-node-lock.tsv' \
   "$repo_root/Dockerfile"
+grep -Fq 'COPY seed-hunter-node-lock.tsv /opt/minimax-h3-bundle/seed-hunter-node-lock.tsv' \
+  "$repo_root/Dockerfile"
 grep -Fq 'python3 main.py --cpu --quick-test-for-ci' "$repo_root/Dockerfile"
 grep -Fq 'Skipping Seed Hunter custom nodes on Ampere.' "$repo_root/bake_custom_nodes.sh"
 if grep -Fq -- '- family: ampere' "$repo_root/.github/workflows/docker-publish.yml"; then

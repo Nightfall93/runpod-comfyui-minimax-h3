@@ -109,6 +109,7 @@ RUN COMFYUI_COMMIT="$COMFYUI_H3_COMMIT" \
       /tmp/comfyui-sage3-global.patch
 
 COPY asset-manifest.tsv /opt/minimax-h3-bundle/asset-manifest.tsv
+COPY seed-hunter-node-lock.tsv /opt/minimax-h3-bundle/seed-hunter-node-lock.tsv
 COPY workflows/ /opt/minimax-h3-bundle/workflows/
 COPY media/ /opt/minimax-h3-bundle/media/
 COPY tests/validate_bundle.py /tmp/validate_bundle.py
